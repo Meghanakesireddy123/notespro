@@ -19,7 +19,8 @@ const PORT = process.env.PORT || 5001;
     cors({
       origin: [
         "http://localhost:5173",
-        "https://notespro-mgth.onrender.com"
+        "https://notespro-mgth.onrender.com",
+        "https://notespro-omega.vercel.app"
       ],
       credentials: true,
     })
