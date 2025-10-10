@@ -2,7 +2,6 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import RateLimitedUI from "../components/RateLimitedUI";
 import { useEffect } from "react";
-import api from "../lib/axios";
 import toast from "react-hot-toast";
 import NoteCard from "../components/NoteCard";
 import NotesNotFound from "../components/NotesNotFound";
@@ -15,14 +14,24 @@ const HomePage = () => {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const res = await api.get("/notes");
-        console.log(res.data);
-        setNotes(res.data);
+        const res = await fetch("https://notespro-mgth.onrender.com/api/notes");
+        // Handle rate limiting and other non-OK responses
+        if (!res.ok) {
+          if (res.status === 429) {
+            setIsRateLimited(true);
+            return;
+          }
+          const errText = await res.text().catch(() => null);
+          throw new Error(errText || `Request failed with status ${res.status}`);
+        }
+        const data = await res.json();
+        console.log(data);
+        setNotes(data);
         setIsRateLimited(false);
       } catch (error) {
         console.log("Error fetching notes");
-        console.log(error.response);
-        if (error.response?.status === 429) {
+        console.log(error);
+        if (error?.message?.includes("429")) {
           setIsRateLimited(true);
         } else {
           toast.error("Failed to load notes");

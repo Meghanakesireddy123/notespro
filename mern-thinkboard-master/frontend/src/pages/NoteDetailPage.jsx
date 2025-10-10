@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import api from "../lib/axios";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
 
@@ -17,8 +16,16 @@ const NoteDetailPage = () => {
   useEffect(() => {
     const fetchNote = async () => {
       try {
-        const res = await api.get(`/notes/${id}`);
-        setNote(res.data);
+        const res = await fetch(`https://notespro-mgth.onrender.com/api/notes/${id}`);
+        if (res.status === 429) {
+          toast.error("Rate limit exceeded. Please slow down.");
+          return;
+        }
+        if (!res.ok) {
+          throw new Error("Failed to fetch note");
+        }
+        const data = await res.json();
+        setNote(data);
       } catch (error) {
         console.log("Error in fetching note", error);
         toast.error("Failed to fetch the note");
@@ -34,7 +41,20 @@ const NoteDetailPage = () => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
 
     try {
-      await api.delete(`/notes/${id}`);
+      const res = await fetch(`https://notespro-mgth.onrender.com/api/notes/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.status === 429) {
+        toast.error("Slow down! You're deleting notes too fast", { duration: 4000, icon: "💀" });
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to delete note");
+      }
+
       toast.success("Note deleted");
       navigate("/");
     } catch (error) {
@@ -52,7 +72,22 @@ const NoteDetailPage = () => {
     setSaving(true);
 
     try {
-      await api.put(`/notes/${id}`, note);
+      const res = await fetch(`https://notespro-mgth.onrender.com/api/notes/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(note),
+      });
+
+      if (res.status === 429) {
+        toast.error("Slow down! You're updating notes too fast", { duration: 4000, icon: "💀" });
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to update note");
+      }
+
       toast.success("Note updated successfully");
       navigate("/");
     } catch (error) {

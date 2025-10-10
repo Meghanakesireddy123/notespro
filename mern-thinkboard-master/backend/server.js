@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5001;
 // const __dirname = path.resolve();
 
 // middleware
-if (process.env.NODE_ENV !== "production") {
+// if (process.env.NODE_ENV !== "production") {
   app.use(
     cors({
       origin: [
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== "production") {
       credentials: true,
     })
   );
-}
+// }
 
 app.use(express.json()); // this middleware will parse JSON bodies: req.body
 app.use(rateLimiter);

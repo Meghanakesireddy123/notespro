@@ -1,10 +1,10 @@
 import axios from "axios";
 
 // in production, there's no localhost so we have to make this dynamic
-// const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001/api" : "/api";
+const BASE_URL = import.meta.env.MODE === "development" ? "https://notespro-mgth.onrender.com/api" : "/api";
 
 const api = axios.create({
-  baseURL: "https://notespro-mgth.onrender.com/api",
+  baseURL: BASE_URL,
 });
 
 export default api;

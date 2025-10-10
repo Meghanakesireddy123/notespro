@@ -2,7 +2,6 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
-import api from "../lib/axios";
 
 const CreatePage = () => {
   const [title, setTitle] = useState("");
@@ -21,23 +20,32 @@ const CreatePage = () => {
 
     setLoading(true);
     try {
-      await api.post("/notes", {
-        title,
-        content,
+      const res = await fetch("https://notespro-mgth.onrender.com/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, content }),
       });
+
+      if (res.status === 429) {
+        toast.error("Slow down! You're creating notes too fast", {
+          duration: 4000,
+          icon: "💀",
+        });
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to create note");
+      }
 
       toast.success("Note created successfully!");
       navigate("/");
     } catch (error) {
       console.log("Error creating note", error);
-      if (error.response.status === 429) {
-        toast.error("Slow down! You're creating notes too fast", {
-          duration: 4000,
-          icon: "💀",
-        });
-      } else {
-        toast.error("Failed to create note");
-      }
+      toast.error(error.message || "Failed to create note");
     } finally {
       setLoading(false);
     }
