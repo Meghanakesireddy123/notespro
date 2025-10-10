@@ -30,6 +30,11 @@ app.use(rateLimiter);
 //   next();
 // });
 
+// Default index route
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
+
 app.use("/api/notes", notesRoutes);
 
 // if (process.env.NODE_ENV === "production") {
