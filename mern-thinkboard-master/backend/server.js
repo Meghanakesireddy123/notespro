@@ -17,10 +17,15 @@ const PORT = process.env.PORT || 5001;
 if (process.env.NODE_ENV !== "production") {
   app.use(
     cors({
-      origin: "http://localhost:5173",
+      origin: [
+        "http://localhost:5173",
+        "https://notespro-mgth.onrender.com"
+      ],
+      credentials: true,
     })
   );
 }
+
 app.use(express.json()); // this middleware will parse JSON bodies: req.body
 app.use(rateLimiter);
 
